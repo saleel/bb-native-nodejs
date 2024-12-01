@@ -1,30 +1,14 @@
 import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
-// import pako from 'pako';
 import { CompiledCircuit, InputMap, Noir } from '@noir-lang/noir_js';
 import { splitHonkProof } from '@aztec/bb.js';
 
 async function generateProof(inputs: InputMap, bbPath: string, circuitJsonPath: string, witnessOutputPath: string, proofOutputPath: string) {
-    // const circuit = fs.readFileSync(circuitPath, 'utf8');
-    // const noir = new Noir(JSON.parse(circuit) as CompiledCircuit);
-    // const { witness } = await noir.execute(inputs);
-    // const witnessGz = await pako.gzip(witness); // THIS IS NOT WORKING
-    // await fs.writeFileSync(witnessOutputPath, witnessGz);
-
-    // Generate witness using nargo
-    // Write inputs to Prover.toml
-    const toml = `x = ${inputs.x}\ny = ${inputs.y}`;
-    await fs.writeFileSync(path.join(__dirname, '../circuits/Prover.toml'), toml);
-    const nargoProcess = spawn('nargo', ['execute'], { cwd: path.join(__dirname, '../circuits') });
-
-    nargoProcess.stdout.on('data', (data: string) => {
-      console.log(`stdout: ${data}`);
-    });
-
-    await new Promise((resolve, reject) => {
-      nargoProcess.on('close', resolve);
-    });
+    const circuit = fs.readFileSync(circuitPath, 'utf8');
+    const noir = new Noir(JSON.parse(circuit) as CompiledCircuit);
+    const { witness } = await noir.execute(inputs);
+    await fs.writeFileSync(witnessOutputPath, witness);
 
     const args = [
       'prove_ultra_honk',
